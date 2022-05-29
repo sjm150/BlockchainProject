@@ -13,17 +13,16 @@ contract RequestManager {
     }
 
     Request[] requests;
-    //uint256 nonce;
-    uint256 bookmark;
+    uint256 bookmark; // next index of request array to continue reading
 
     address token;
 
     constructor(address _token) {
         token = _token;
-        //nonce = 0;
         bookmark = 0;
     }
 
+    // make request for exchanging from game currency to corresponding token
     function requestMint(string memory _gameID, uint256 _amount) public returns (uint256) {
         Request memory request;
         request.owner = msg.sender;
@@ -36,6 +35,7 @@ contract RequestManager {
         return requests.length;
     }
 
+    // make request for exchanging from token to coreesponding game currency
     function requestBurn(string memory _gameID, uint256 _amount) public returns (uint256) {
         Request memory request;
         request.owner = msg.sender;
@@ -48,6 +48,7 @@ contract RequestManager {
         return requests.length;
     }
 
+    // fetch infos of unread requests
     function read() public returns (uint256, string[] memory, uint256[] memory, bool[] memory) {
         uint256 len = requests.length;
         uint256 cnt = len - bookmark;
@@ -67,6 +68,8 @@ contract RequestManager {
         return (first, gameID_, amount_, mint_);
     }
 
+    // accept valid exchange requests
+    // param reqeustIDs contains request Ids to accept
     function accept(uint256[] memory requestIDs) public returns (bool[] memory) {
         bool[] memory result = new bool[](requestIDs.length);
 
