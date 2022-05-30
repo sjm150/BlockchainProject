@@ -37,7 +37,6 @@ contract RequestManager {
     }
 
     Request[] requests;
-    //uint256 nonce;
     uint256 bookmark;
     address token;
     bool exist_mint_request=false;
@@ -47,7 +46,6 @@ contract RequestManager {
 
     constructor(address _token) {
         token = _token;
-        //nonce = 0;
         bookmark = 0;
     }
 
@@ -80,7 +78,6 @@ contract RequestManager {
         requests.push(request);
     }
 
-///////////////////////////////////////////////////////////
     mapping (address => mapping(address => uint256)) _balances; // userID->tokenAddress->잔고
     uint256 request_number; // 처리해야 하는 request 수
 
@@ -96,10 +93,6 @@ contract RequestManager {
         exist_burn_request=false;
     }
 
-    function temp() public view returns (uint){
-        return request_user.length;
-    }
-
     function mint() public {
         
         for(uint i=0; i<request_user.length;i++){
@@ -109,7 +102,6 @@ contract RequestManager {
             _balances[request_user[i].owner][token]+=request_user[i].amount;
             request_user[i].accepted=true;
         }
-        // 모두 성공적으로 잘 mint 되었으면 true를 return
     }
 
     function burn() public {
@@ -121,16 +113,12 @@ contract RequestManager {
             _balances[request_user[i].owner][token]-=request_user[i].amount;
             request_user[i].accepted=true;
         }
-        // 모두 성공적으로 잘 burn 되었으면 true를 return
     }
 
     function read() public {
         uint256 len = requests.length;
         uint256 cnt = len - bookmark;
         require(cnt > 0, "RequestManager: Nothing to read");
-        //string[] memory gameID_ = new string[](cnt);
-        //uint256[] memory amount_ = new uint256[](cnt);
-        //bool[] memory mint_ = new bool[](cnt);
 
         uint256 first = bookmark;
         for (uint i = 0; i < cnt; i++) {
@@ -138,11 +126,8 @@ contract RequestManager {
             require(request.owner!=address(0), "Not a valid address");
             
             request_user.push(request);
-            //gameID_[i] = request.gameID;
-            //amount_[i] = request.amount;
         }
 
-        //request_userID.push(gameID_);
         bookmark = len;
     }
 
@@ -161,6 +146,7 @@ contract RequestManager {
         return result;
     }
 
+    // 프로그램이 잘 동작하는지 확인하기 위한 함수
     function balenceof(address _address) public view returns (uint256){
         return _balances[_address][token];
     }
