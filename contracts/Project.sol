@@ -42,7 +42,7 @@ contract RequestManager {
     bool exist_mint_request=false;
     bool exist_burn_request=false;
 
-    Request[] request_user;
+    //Request[] request_user;
 
     constructor(address _token) {
         token = _token;
@@ -79,7 +79,9 @@ contract RequestManager {
     }
 
     mapping (address => mapping(address => uint256)) _balances; // userID->tokenAddress->잔고
-    uint256 request_number; // 처리해야 하는 request 수
+    //uint256 request_number; // 처리해야 하는 request 수
+    uint256 cnt;
+    uint256 first;
 
     function Convert_to_Token() public {
         read();
@@ -88,45 +90,39 @@ contract RequestManager {
         if(exist_burn_request==true)
             burn();
         
-        delete request_user;
+        //delete request_user;
         exist_mint_request=false;
         exist_burn_request=false;
     }
 
     function mint() public {
         
-        for(uint i=0; i<request_user.length;i++){
+        for(uint i=0; i<cnt;i++){
             
-            require(request_user[i].mint==true);    
+            require(requests[i+first].mint==true);    
 
-            _balances[request_user[i].owner][token]+=request_user[i].amount;
-            request_user[i].accepted=true;
+            _balances[requests[i+first].owner][token]+=requests[i+first].amount;
+            requests[i+first].accepted=true;
         }
     }
 
     function burn() public {
         
-        for(uint i=0; i<request_user.length;i++){
+        for(uint i=0; i<cnt;i++){
             
-            require(request_user[i].mint==false);
-            require(_balances[request_user[i].owner][token]>request_user[i].amount);
-            _balances[request_user[i].owner][token]-=request_user[i].amount;
-            request_user[i].accepted=true;
+            require(requests[i+first].mint==false);
+            require(_balances[requests[i+first].owner][token]>requests[i+first].amount);
+            _balances[requests[i+first].owner][token]-=requests[i+first].amount;
+            requests[i+first].accepted=true;
         }
     }
 
     function read() public {
         uint256 len = requests.length;
-        uint256 cnt = len - bookmark;
+        cnt = len - bookmark;
         require(cnt > 0, "RequestManager: Nothing to read");
 
-        uint256 first = bookmark;
-        for (uint i = 0; i < cnt; i++) {
-            Request memory request = requests[i + first];
-            require(request.owner!=address(0), "Not a valid address");
-            
-            request_user.push(request);
-        }
+        first = bookmark;
 
         bookmark = len;
     }
