@@ -23,7 +23,7 @@ contract Factory {
         address token = Clones.clone(tokens[0]);
         address request = Clones.clone(requests[0]);
         ERC20Example(token).init(name, symbol, decimals, request);
-        RequestManager(request).init(token);
+        RequestManager(request).init(token, msg.sender);
         tokens.push(token);
         requests.push(request);
     }

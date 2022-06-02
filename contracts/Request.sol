@@ -14,13 +14,15 @@ contract RequestManager {
     }
 
     Request[] private requests;
-    uint256 private bookmark; // next index of request array to continue reading
+    uint256 public bookmark; // next index of request array to continue reading
 
-    address private token;
+    address public token;
+    address public gameManager;
 
-    function init(address _token) public virtual {
+    function init(address _token, address _gameManager) public virtual {
         require(token == address(0), "RequestManager: already initialized");
         token = _token;
+        gameManager = _gameManager;
         bookmark = 0;
     }
 
@@ -66,9 +68,11 @@ contract RequestManager {
 
     // fetch unread info from given first index
     function readFrom(uint256 first) public view returns (uint256, string[] memory, uint256[] memory, bool[] memory) {
+        require(msg.sender == gameManager, "RequestManager: no permission");
         uint256 len = requests.length;
         uint256 cnt = len - first;
         require(cnt > 0, "RequestManager: Nothing to read");
+
         string[] memory gameID_ = new string[](cnt);
         uint256[] memory amount_ = new uint256[](cnt);
         bool[] memory mint_ = new bool[](cnt);
@@ -84,6 +88,7 @@ contract RequestManager {
 
     // must updated after reading infos of requests until new bookmark
     function updateBookmark(uint256 newBookmark) public {
+        require(msg.sender == gameManager, "RequestManager: no permission");
         require(bookmark < newBookmark, "RequestManager: bookmark cannot be decreased");
         bookmark = newBookmark;
     }
@@ -91,6 +96,8 @@ contract RequestManager {
     // accept valid mint requests
     // param mintReqeustIDs contains indices of requests array to accept
     function accept(uint256[] memory mintRequestIDs) public {
+        require(msg.sender == gameManager, "RequestManager: no permission");
+
         uint256 cnt = mintRequestIDs.length;
         address[] memory receivers = new address[](cnt);
         uint256[] memory amounts = new uint256[](cnt);
@@ -111,6 +118,8 @@ contract RequestManager {
     // reject invalid burn requests
     // param burnRequestIDs contains indices of requests array to reject
     function reject(uint256[] memory burnRequestIDs) public {
+        require(msg.sender == gameManager, "RequestManager: no permission");
+
         uint256 cnt = burnRequestIDs.length;
         address[] memory receivers = new address[](cnt);
         uint256[] memory amounts = new uint256[](cnt);
