@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import './ERC20Example.sol';
-import './interfaces/IERC20Example.sol';
 
 contract RequestManager {
     struct Request {
@@ -62,12 +61,12 @@ contract RequestManager {
     }
 
     // fetch info of unread requests
-    function read() public view returns (uint256, string[] memory, uint256[] memory, bool[] memory) {
+    function read() public view returns (uint256, string[] memory, uint256[] memory, bool[] memory, bool[] memory) {
         return readFrom(bookmark);
     }
 
     // fetch unread info from given first index
-    function readFrom(uint256 first) public view returns (uint256, string[] memory, uint256[] memory, bool[] memory) {
+    function readFrom(uint256 first) public view returns (uint256, string[] memory, uint256[] memory, bool[] memory, bool[] memory) {
         require(msg.sender == gameManager, "RequestManager: no permission");
         uint256 len = requests.length;
         uint256 cnt = len - first;
@@ -76,14 +75,17 @@ contract RequestManager {
         string[] memory gameID_ = new string[](cnt);
         uint256[] memory amount_ = new uint256[](cnt);
         bool[] memory mint_ = new bool[](cnt);
+        bool[] memory valid_ = new bool[](cnt);
 
         for (uint256 i = 0; i < cnt; i++) {
             Request storage request = requests[i + first];
             gameID_[i] = request.gameID;
             amount_[i] = request.amount;
+            mint_[i] = request.mint;
+            valid_[i] = request.valid;
         }
 
-        return (first, gameID_, amount_, mint_);
+        return (first, gameID_, amount_, mint_, valid_);
     }
 
     // must updated after reading infos of requests until new bookmark
