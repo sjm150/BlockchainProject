@@ -20,6 +20,9 @@ contract RequestManager {
     address public token;
     address public gameManager;
 
+    event RequestCreated(address indexed owner, string gameID, uint256 amount, bool mint);
+
+
     function init(address _token, address _gameManager) public virtual {
         require(token == address(0), "Already initialized");
         token = _token;
@@ -38,7 +41,8 @@ contract RequestManager {
     // make request for exchanging from game currency to corresponding token
     function requestMint(uint256 _amount) public {
         require(_amount > 0, "Request amount should not be 0");
-        // require(bytes(gameIDs[msg.sender]).length != 0, "Set gameID for this address");
+        string storage gameID = gameIDs[msg.sender];
+        require(bytes(gameIDs[msg.sender]).length != 0, "Set gameID for this address");
 
         Request memory request;
         request.amount = _amount;
@@ -47,6 +51,8 @@ contract RequestManager {
         request.valid = false;
 
         requests.push(request);
+
+        emit RequestCreated(msg.sender, gameID, _amount, true);
     }
     // set & request in 1 tx
     function setAndRequestMint(string calldata _gameID, uint256 _amount) public {
@@ -57,7 +63,8 @@ contract RequestManager {
     // make request for exchanging from token to coreesponding game currency
     function requestBurn(uint256 _amount) public {
         require(_amount > 0, "Request amount should not be 0");
-        // require(bytes(gameIDs[msg.sender]).length != 0, "Set gameID for this address");
+        string storage gameID = gameIDs[msg.sender];
+        require(bytes(gameIDs[msg.sender]).length != 0, "Set gameID for this address");
 
         ERC20Example(token).burn(msg.sender, _amount);
 
@@ -68,6 +75,8 @@ contract RequestManager {
         request.valid = true;
 
         requests.push(request);
+
+        emit RequestCreated(msg.sender, gameID, _amount, false);
     }
     // set & request in 1 tx
     function setAndRequestBurn(string calldata _gameID, uint256 _amount) public {
@@ -76,37 +85,31 @@ contract RequestManager {
     }
 
     // fetch info of request of given index
-    function getRequest(uint256 index) public view returns (string memory, uint256, bool) {
-        Request storage request = requests[index];
-        return (gameIDs[msg.sender], request.amount, request.mint);
+    function read(uint256 index) public view returns (string memory, Request memory) {
+        return (gameIDs[msg.sender], requests[index]);
     }
 
-    // fetch info of unread requests
-    function read() public view returns (uint256, string[] memory, uint256[] memory, bool[] memory, bool[] memory) {
+    // fetch info of all unread requests
+    function readAll() public view returns (uint256, string[] memory, Request[] memory) {
         return readFrom(bookmark);
     }
 
     // fetch unread info from given first index
-    function readFrom(uint256 first) public view returns (uint256, string[] memory, uint256[] memory, bool[] memory, bool[] memory) {
+    function readFrom(uint256 first) public view returns (uint256, string[] memory, Request[] memory) {
         require(msg.sender == gameManager, "No permission");
         uint256 len = requests.length;
         uint256 cnt = len - first;
         require(cnt > 0, "Nothing to read");
 
-        string[] memory gameID_ = new string[](cnt);
-        uint256[] memory amount_ = new uint256[](cnt);
-        bool[] memory mint_ = new bool[](cnt);
-        bool[] memory valid_ = new bool[](cnt);
+        string[] memory gameIDs_ = new string[](cnt);
+        Request[] memory requests_ = new Request[](cnt);
 
         for (uint256 i = 0; i < cnt; i++) {
-            Request storage request = requests[i + first];
-            gameID_[i] = gameIDs[msg.sender];
-            amount_[i] = request.amount;
-            mint_[i] = request.mint;
-            valid_[i] = request.valid;
+            gameIDs_[i] = gameIDs[msg.sender];
+            requests_[i] = requests[i + first];
         }
 
-        return (first, gameID_, amount_, mint_, valid_);
+        return (first, gameIDs_, requests_);
     }
 
     // must update after reading infos of requests until new bookmark
