@@ -20,8 +20,11 @@ contract RequestManager {
     address public token;
     address public gameManager;
 
-    event RequestCreated(address indexed owner, string gameID, uint256 amount, bool mint);
-
+    // request events
+    event RequestCreated(uint256 indexed requestIndex, address indexed owner, string gameID, uint256 amount, bool mint);
+    event MintRequestAccepted(uint256[] requestIndices, address[] owners);
+    event BurnRequestRejected(uint256[] requestIndices, address[] owners);
+    event BurnRequestRetrieved(uint256 indexed requestIndex, address indexed owner, uint256 amount);
 
     function init(address _token, address _gameManager) public virtual {
         require(token == address(0), "Already initialized");
@@ -52,7 +55,7 @@ contract RequestManager {
 
         requests.push(request);
 
-        emit RequestCreated(msg.sender, gameID, _amount, true);
+        emit RequestCreated(requests.length - 1, msg.sender, gameID, _amount, true);
     }
     // set & request in 1 tx
     function setAndRequestMint(string calldata _gameID, uint256 _amount) public {
@@ -76,7 +79,7 @@ contract RequestManager {
 
         requests.push(request);
 
-        emit RequestCreated(msg.sender, gameID, _amount, false);
+        emit RequestCreated(requests.length - 1, msg.sender, gameID, _amount, false);
     }
     // set & request in 1 tx
     function setAndRequestBurn(string calldata _gameID, uint256 _amount) public {
@@ -121,7 +124,7 @@ contract RequestManager {
 
     // accept valid mint requests
     // param mintReqeustIDs contains indices of requests array to accept
-    function accept(uint256[] memory mintRequestIDs) public {
+    function accept(uint256[] calldata mintRequestIDs) public {
         require(msg.sender == gameManager, "No permission");
 
         uint256 cnt = mintRequestIDs.length;
@@ -139,6 +142,8 @@ contract RequestManager {
         }
 
         ERC20Example(token).mintAll(receivers, amounts);
+
+        emit MintRequestAccepted(mintRequestIDs, receivers);
     }
 
     // reject invalid burn requests
@@ -161,6 +166,8 @@ contract RequestManager {
         }
 
         ERC20Example(token).mintAll(receivers, amounts);
+
+        emit BurnRequestRejected(burnRequestIDs, receivers);
     }
 
     // retrieve unread burn request
@@ -171,7 +178,10 @@ contract RequestManager {
         require(!request.mint && request.valid, "Invalid request state");
 
         request.valid = false;
-        ERC20Example(token).mint(request.owner, request.amount);
+        uint256 amount = request.amount;
+        ERC20Example(token).mint(msg.sender, amount);
+
+        emit BurnRequestRetrieved(index, msg.sender, amount);
     }
 
 }
