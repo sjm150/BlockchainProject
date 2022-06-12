@@ -12,9 +12,13 @@ contract Factory {
     address[] public tokens;
     address[] public requests;
 
+    event RequestTokenCreated(address request, address token, uint256 index);
+
     constructor() {
-        address token = address(new ERC20Example("ZeroIndexToken", "ZIT"));
+        address token = address(new ERC20Example("", ""));
         address request = address(new RequestManager());
+        ERC20Example(token).init("Library", "LIB", 0, request);
+        RequestManager(request).init(token, msg.sender);
         tokens.push(token);
         requests.push(request);
     }
@@ -26,6 +30,8 @@ contract Factory {
         RequestManager(request).init(token, msg.sender);
         tokens.push(token);
         requests.push(request);
+
+        emit RequestTokenCreated(request, token, tokens.length - 1);
     }
 
     function getTokenAddress(uint256 idx) public view returns (address token) {
