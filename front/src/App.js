@@ -161,18 +161,17 @@ function App() {
 								<table className="table w-full">
                   <thead>
                     <tr>
-                      <th>tokenAddress</th>
-                      <th>requestManagerAddress</th>
+                      <th>token Address</th>
+                      <th>requestManager Address</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <th>{nowSelectedCoin}</th>
-                      <td>{nowSelectedManager}</td>
+					<th><button className='text-l text-blue-700 text-center' onClick={() => window.open('https://ropsten.etherscan.io/address/'.concat(nowSelectedCoin), '_blank')}>{nowSelectedCoin}</button></th>
+						<td><button className='text-l text-blue-700 text-center' onClick={() => window.open('https://ropsten.etherscan.io/address/'.concat(nowSelectedManager), '_blank')}>{nowSelectedManager}</button></td>
                     </tr>
                   </tbody>
-                </table>
-								<button className='text-xl font-semibold text-blue-700 text-center' onClick={() => window.open('https://ropsten.etherscan.io/address/'.concat(nowSelectedManager), '_blank')}>Check requestManager in block explorer</button>
+				  </table>
               </div>
             </div>
 						</div>
