@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Web3 from 'web3';
 import { getOwnBalance, requestMint, requestMint2, requestBurn, read, getTokenInfo, getTokenSymbol, getTokenSupply } from './Web3Client';
+import TxList from './TxList';
+import tokenBuild from 'contracts/ERC20Example.json';
 
 function App() {
+	const [txs, setTxs] = useState([]);
 	const [requested, setRequsted] = useState(false);
 	const [balance, setBalance] = useState(0);
 	const [tokenN, setTokenN] = useState("-");
@@ -10,17 +13,47 @@ function App() {
 	const [tokenTS, setTokenTS] = useState("-");
 	const [nowSelectedCoin, setNowSelectedCoin] = useState("-");
 	const [nowSelectedManager, setNowSelectedManager] = useState("-");
-	const M = "0x082e17A998317728c9cd8c2f5424E024b80eD6a6";
-	const T = "0xa025d99E5188e378b0b41244F0783DD2a3d48067";
-	const W = "0x8969817E4b630E8DF94982e4138B1291523456CE";
-	const E = "0xEd5C29707eC5b374a1544B5EFbcd923291991898";
-	const P = "0x3784bC66c0e84976661418E8C42Fc98980Eb1ebA";
-	const Mmanager ="0x6d79791da87F7d014ae61afeFF833A3D06B89820";
-	const Tmanager ="0x2451F945BA4cAf4570D0958d815a6Af3a2E1a9c4";
-	const Wmanager ="0xd03f4C997cF4Bd0c083b81D3BF8B48088FD278f9";
-	const Emanager ="0xcd79904633516513A541D5Ce2c3984907AAE81eD";
-	const Pmanager ="0xc245D446Dff9407322638F444f23769991603939";
 
+	const M = "0x835666fa482B1CD711635cE2Cfc926F2c5584Ad5";
+	const T = "0x92bDEfAA26eBbde02844814EF49A03AE402f2a95";
+	const W = "0x9f1beC0a2fD1568Faf1B23A70b95d12d5cCd6D69";
+	const E = "0x82D14aE2ca5CB1edF8fd58818dEFc91BEeb3765A";
+	const P = "0x1Dd8eEF5aD7774A1B27989A697D4B14BefAd77eF";
+	const Mmanager ="0x3156b6123D091b807b627397875282361e87F165";
+	const Tmanager ="0xe7d8cB353215a81870c4a3273C2517EbAf3B1eE2";
+	const Wmanager ="0x941015C08Dd514b7c3ee97e6Be428A537210D8e7";
+	const Emanager ="0xFD1ee5c97cC5FBEd3F6f30537f8c48673Fb29D0A";
+	const Pmanager ="0x0641ac60606605FC471C4020764a49F63C961A73";
+	
+	// useEffect(() => {
+
+	// 	let tokenContract;
+	// 	let provider = window.ethereum;
+	// 	const web3 = new Web3(provider);
+	// 	tokenContract = new web3.eth.Contract(
+	// 		tokenBuild.abi, address
+	// 	);
+
+  //     erc20.on("Transfer", (from, to, amount, event) => {
+  //       console.log({ from, to, amount, event });
+
+  //       setTxs((currentTxs) => [
+  //         ...currentTxs,
+  //         {
+  //           txHash: event.transactionHash,
+  //           from,
+  //           to,
+  //           amount: String(amount)
+  //         }
+  //       ]);
+  //     });
+  //     setContractListened(erc20);
+
+  //     return () => {
+  //       contractListened.removeAllListeners();
+  //     };
+  //   }
+  // }, [nowSelectedManager]);
 
 	const handleRequestMint = async (e) => {
     e.preventDefault();
@@ -35,16 +68,7 @@ function App() {
 	}
 
 
-	const handleSelect = async (e) => {
-		e.preventDefault();
-    const data = new FormData(e.target);
-		const name = await getTokenInfo(data.get("tokenAddress"));
-		const symbol = await getTokenSymbol(data.get("tokenAddress"));
-		const supply = await getTokenSupply(data.get("tokenAddress"));
-		setTokenN(name);
-		setTokenS(symbol);
-		setTokenTS(supply);
-	}
+
 
 	const handleSelectByName = async (e) => {
 		e.preventDefault();
@@ -59,6 +83,7 @@ function App() {
 			setTokenS(symbol);
 			setTokenTS(supply);
 			setNowSelectedManager(Mmanager);
+			setNowSelectedCoin(M);
 		}
 		else if (gameName === "Tiablo") {
 			console.log(gameName);
@@ -69,6 +94,7 @@ function App() {
 			setTokenS(symbol);
 			setTokenTS(supply);
 			setNowSelectedManager(Tmanager);
+			setNowSelectedCoin(T);
 		}
 		else if (gameName === "Walcraft") {
 			console.log(gameName);
@@ -79,6 +105,7 @@ function App() {
 			setTokenS(symbol);
 			setTokenTS(supply);
 			setNowSelectedManager(Wmanager);
+			setNowSelectedCoin(W);
 		}
 		else if (gameName === "Erden ring") {
 			console.log(gameName);
@@ -89,6 +116,7 @@ function App() {
 			setTokenS(symbol);
 			setTokenTS(supply);
 			setNowSelectedManager(Emanager);
+			setNowSelectedCoin(E);
 		}
 		else if (gameName === "PIFA online") {
 			console.log(gameName);
@@ -99,6 +127,7 @@ function App() {
 			setTokenS(symbol);
 			setTokenTS(supply);
 			setNowSelectedManager(Pmanager);
+			setNowSelectedCoin(P);
 		}
 	}
 
@@ -106,6 +135,7 @@ function App() {
 
 	return (
 		<div className="App">
+
 			<div className="credit-card w-full lg:w-3/4 sm:w-auto shadow-lg mx-auto rounded-xl bg-white">
 			<div>
           <div >
@@ -137,35 +167,7 @@ function App() {
           </div>
         </div>
 				</div>
-			<div className="credit-card w-full lg:w-3/4 sm:w-auto shadow-lg mx-auto rounded-xl bg-white">
-			<div>
-          <div >
-            <h1  className="text-xl font-semibold text-green-700 text-center">
-              Select Token by Address
-            </h1>
-
-            <form className="m-4" onSubmit={handleSelect}>
-              <div>
-                <input
-                  type="text"
-                  name="tokenAddress"
-                  placeholder="tokenAddress"
-									className="input input-bordered block w-full focus:ring"
-                />
-              </div>
-    
-              <footer>
-                <button
-								className="btn btn-primary submit-button focus:ring focus:outline-none w-full"
-                  type="submit"
-                >
-                  select
-                </button>
-              </footer>
-            </form>
-          </div>
-        </div>
-				</div>
+			
 
 				<div className="credit-card w-full lg:w-3/4 sm:w-auto shadow-lg mx-auto rounded-xl bg-white">
 				<div className="px-4">
@@ -193,8 +195,9 @@ function App() {
             </div>
 						</div>
 
+				
 
-				<div className="credit-card w-full lg:w-3/4 sm:w-auto shadow-lg mx-auto rounded-xl bg-white">
+				<div className="credit-card w-full lg:w-3/4 sm:w-auto shadow-lg mx-auto rounded-xl bg-white margin:20" style={{ marginTop: `15px` }}>
 			<div>
           <div >
             <h1  className="text-xl font-semibold text-green-700 text-center">
@@ -268,7 +271,7 @@ function App() {
         </div>
 				</div>
 
-				
+			
 
 		</div>
 	);

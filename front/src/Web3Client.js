@@ -107,7 +107,7 @@ export const requestMint2 = async (gameID, amount, managerAddr) => {
 	);
 
 	return mintContract.methods
-		.requestMint(gameID, amount)
+		.setAndRequestMint(gameID, amount)
 		.send({from: selectedAccount});
 }
 
@@ -123,7 +123,7 @@ export const requestBurn = async (gameID, amount, managerAddr) => {
 	);
 
 	return burnContract.methods
-		.requestBurn(gameID, amount)
+		.setAndRequestBurn(gameID, amount)
 		.send({from: selectedAccount});
 }
 
