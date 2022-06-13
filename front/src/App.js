@@ -24,36 +24,6 @@ function App() {
 	const Wmanager ="0x941015C08Dd514b7c3ee97e6Be428A537210D8e7";
 	const Emanager ="0xFD1ee5c97cC5FBEd3F6f30537f8c48673Fb29D0A";
 	const Pmanager ="0x0641ac60606605FC471C4020764a49F63C961A73";
-	
-	// useEffect(() => {
-
-	// 	let tokenContract;
-	// 	let provider = window.ethereum;
-	// 	const web3 = new Web3(provider);
-	// 	tokenContract = new web3.eth.Contract(
-	// 		tokenBuild.abi, address
-	// 	);
-
-  //     erc20.on("Transfer", (from, to, amount, event) => {
-  //       console.log({ from, to, amount, event });
-
-  //       setTxs((currentTxs) => [
-  //         ...currentTxs,
-  //         {
-  //           txHash: event.transactionHash,
-  //           from,
-  //           to,
-  //           amount: String(amount)
-  //         }
-  //       ]);
-  //     });
-  //     setContractListened(erc20);
-
-  //     return () => {
-  //       contractListened.removeAllListeners();
-  //     };
-  //   }
-  // }, [nowSelectedManager]);
 
 	const handleRequestMint = async (e) => {
     e.preventDefault();
@@ -66,9 +36,6 @@ function App() {
     const data = new FormData(e.target);
 		await requestBurn(data.get("gameID"), data.get("amount"), nowSelectedManager);
 	}
-
-
-
 
 	const handleSelectByName = async (e) => {
 		e.preventDefault();
@@ -191,6 +158,21 @@ function App() {
                     </tr>
                   </tbody>
                 </table>
+								<table className="table w-full">
+                  <thead>
+                    <tr>
+                      <th>tokenAddress</th>
+                      <th>requestManagerAddress</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>{nowSelectedCoin}</th>
+                      <td>{nowSelectedManager}</td>
+                    </tr>
+                  </tbody>
+                </table>
+								<button className='text-xl font-semibold text-blue-700 text-center' onClick={() => window.open('https://ropsten.etherscan.io/address/'.concat(nowSelectedManager), '_blank')}>Check requestManager in block explorer</button>
               </div>
             </div>
 						</div>
